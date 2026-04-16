@@ -1,4 +1,4 @@
-import { createServerClient } from '@supabase/ssr'
+import { createServerClient, type CookieMethodsServer } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
@@ -9,8 +9,10 @@ export async function middleware(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll: ()  => request.cookies.getAll(),
-        setAll: (toSet) => {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        setAll(toSet: Parameters<CookieMethodsServer['setAll']>[0]) {
           toSet.forEach(({ name, value }) => request.cookies.set(name, value))
           response = NextResponse.next({ request: { headers: request.headers } })
           toSet.forEach(({ name, value, options }) =>
@@ -24,10 +26,11 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   const path = request.nextUrl.pathname
 
-  const isPublic = path.startsWith('/login') ||
-                   path.startsWith('/register') ||
-                   path.startsWith('/api/webhook') ||
-                   path.startsWith('/api/auth')
+  const isPublic =
+    path.startsWith('/login') ||
+    path.startsWith('/register') ||
+    path.startsWith('/api/webhook') ||
+    path.startsWith('/api/auth')
 
   if (!user && !isPublic) {
     return NextResponse.redirect(new URL('/login', request.url))
