@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { createServerClient } from '@supabase/ssr'
+=======
+import { createServerClient, type CookieMethodsServer } from '@supabase/ssr'
+>>>>>>> 308e82d94aca695de387c8273b913fa0d39d99dc
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
@@ -12,6 +16,7 @@ export async function middleware(request: NextRequest) {
         getAll() {
           return request.cookies.getAll()
         },
+<<<<<<< HEAD
         setAll(toSet: any[]) {
           toSet.forEach((cookie) => {
             request.cookies.set(cookie.name, cookie.value)
@@ -20,6 +25,14 @@ export async function middleware(request: NextRequest) {
           toSet.forEach((cookie) => {
             response.cookies.set(cookie.name, cookie.value, cookie.options)
           })
+=======
+        setAll(toSet: Parameters<CookieMethodsServer['setAll']>[0]) {
+          toSet.forEach(({ name, value }) => request.cookies.set(name, value))
+          response = NextResponse.next({ request: { headers: request.headers } })
+          toSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options)
+          )
+>>>>>>> 308e82d94aca695de387c8273b913fa0d39d99dc
         },
       },
     }
